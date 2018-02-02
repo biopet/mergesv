@@ -25,4 +25,5 @@ import java.io.File
 
 case class Args(inputFiles: Map[String, List[File]] = Map(),
                 outputFile: File = null,
-                referenceFasta: File = null)
+                referenceFasta: File = null,
+                windowsSize: Int = 1000)

@@ -45,4 +45,7 @@ class ArgsParser(toolCommand: ToolCommand[Args])
     .required()
     .action((x, c) => c.copy(referenceFasta = x))
     .text("Reference fasta file")
+  opt[Int]("windowsSize")
+    .action((x, c) => c.copy(windowsSize = x))
+    .text(s"Size of sliding window, default is ${Args().windowsSize} basepair")
 }
