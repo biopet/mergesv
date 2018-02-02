@@ -30,8 +30,10 @@ class ArgsParser(toolCommand: ToolCommand[Args])
   opt[(String, File)]('i', "inputFile")
     .required()
     .unbounded()
-    .action { case ((key, file), c) =>
-      c.copy(inputFiles = c.inputFiles ++ Map(key -> (file :: c.inputFiles.getOrElse(key, Nil))))
+    .action {
+      case ((key, file), c) =>
+        c.copy(inputFiles = c.inputFiles ++ Map(
+          key -> (file :: c.inputFiles.getOrElse(key, Nil))))
     }
     .valueName("<caller>=<file>")
     .text("Input vcf files to merge into a single file")
@@ -39,4 +41,8 @@ class ArgsParser(toolCommand: ToolCommand[Args])
     .required()
     .action((x, c) => c.copy(outputFile = x))
     .text("Output vcf file")
+  opt[File]('R', "referenceFasta")
+    .required()
+    .action((x, c) => c.copy(referenceFasta = x))
+    .text("Reference fasta file")
 }
