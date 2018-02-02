@@ -1,10 +1,9 @@
 # MergeSv
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Aliquam bibendum tellus sed lectus tristique egestas.
-Aenean malesuada lacus sed mollis hendrerit. Aliquam ac mollis sapien.
-Donec vel suscipit dui. Aenean pretium nibh in pulvinar consequat.
-D
+
+This tool will merge structural variants from different callers and different samples.
+Because SV's are not always exact on base resolution called the merging must be done within the windows what the callers say the SV's is placed.
+    
 
 # Documentation
 
@@ -17,7 +16,7 @@ MergeSv is part of BIOPET tool suite that is developed at LUMC by [the SASC team
 Each tool in the BIOPET tool suite is meant to offer a standalone function that can be used to perform a
 dedicate data analysis task or added as part of [BIOPET pipelines](http://biopet-docs.readthedocs.io/en/latest/).
 
-All tools in the BIOPET tool suite are [Free](https://www.gnu.org/philosophy/free-sw.html) and
+All tools in the BIOPET tool suite are [Free/Libre](https://www.gnu.org/philosophy/free-sw.html) and
 [Open Source](https://opensource.org/osd) Software.
     
 

@@ -18,6 +18,7 @@ class MergeSvTest extends ToolTest[Args] {
   @Test
   def testEmptyFiles(): Unit = {
     val outputFile = File.createTempFile("test.", ".vcf")
+    outputFile.deleteOnExit()
     MergeSv.main(Array("-R", resourcePath("/fake_chrQ.fa"), "-o", outputFile.getAbsolutePath,
       "-i", "caller=" + resourcePath("/s1.vcf"), "-i", "caller=" + resourcePath("/s2.vcf")))
     vcf.getSampleIds(outputFile) shouldBe List("s1", "s2")

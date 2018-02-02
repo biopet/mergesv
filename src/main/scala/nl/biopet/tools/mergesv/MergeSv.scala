@@ -140,13 +140,18 @@ object MergeSv extends ToolCommand[Args] {
 
   def manualText: String =
     """
-      |
-    """.stripMargin //TODO
+      |Each file can be tagged with a key, this can be used to see which callers does call the same event.
+      |By default it try to stay withing the confident range the caller did specify.
+    """.stripMargin
 
   def exampleText: String =
     s"""
+      |Sample ID's in the input files should be correct, this is used in merging.
+      |
       |Default example:
-      |${example("-i",
+      |${example("-R",
+                 "<reference_fasta>",
+                 "-i",
                  "<caller>=<input_file>",
                  "-i",
                  "<caller>=<input_file>",
