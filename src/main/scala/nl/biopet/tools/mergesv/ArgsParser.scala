@@ -27,11 +27,16 @@ import nl.biopet.utils.tool.{AbstractOptParser, ToolCommand}
 
 class ArgsParser(toolCommand: ToolCommand[Args])
     extends AbstractOptParser[Args](toolCommand) {
-  opt[File]("inputFile")
-    .abbr("i")
-    .unbounded()
+  opt[(String, File)]('i', "inputFile")
     .required()
-    .maxOccurs(1)
-    .action((x, c) => c.copy(inputFile = x))
-    .text("NonEmptyDescription")
+    .unbounded()
+    .action { case ((key, file), c) =>
+      c.copy(inputFiles = c.inputFiles ++ Map(key -> (file :: c.inputFiles.getOrElse(key, Nil))))
+    }
+    .valueName("<caller>=<file>")
+    .text("Input vcf files to merge into a single file")
+  opt[File]('o', "outputFile")
+    .required()
+    .action((x, c) => c.copy(outputFile = x))
+    .text("Output vcf file")
 }

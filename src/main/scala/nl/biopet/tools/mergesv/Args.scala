@@ -23,4 +23,5 @@ package nl.biopet.tools.mergesv
 
 import java.io.File
 
-case class Args(inputFile: File = null)
+case class Args(inputFiles: Map[String, List[File]] = Map(),
+                outputFile: File = null)
