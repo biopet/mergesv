@@ -44,47 +44,13 @@ object MergeSv extends ToolCommand[Args] {
 
     logger.info("Start")
 
-    val init = createInit(cmdArgs)
+    val init = Init.createInit(cmdArgs)
 
     //TODO: Merging
 
     init.readers.foreach { case (key, list) => key -> list.foreach(_.close) }
     init.writer.close()
     logger.info("Done")
-  }
-
-  protected case class Init(dict: SAMSequenceDictionary,
-                            readers: Map[String, List[VCFFileReader]],
-                            headers: Map[String, List[VCFHeader]],
-                            samples: Seq[String],
-                            writer: VariantContextWriter)
-
-  def createInit(cmdArgs: Args): Init = {
-    val dict = fasta.getCachedDict(cmdArgs.referenceFasta)
-
-    val readers = cmdArgs.inputFiles.map {
-      case (key, list) => key -> list.map(new VCFFileReader(_))
-    }
-    val headers = readers.map {
-      case (key, list) => key -> list.map(_.getFileHeader)
-    }
-
-    val samples = headers
-      .flatMap { case (_, l) => l.flatMap(_.getGenotypeSamples) }
-      .toList
-      .distinct
-      .sorted
-
-    val writer = new VariantContextWriterBuilder()
-      .setOutputFile(cmdArgs.outputFile)
-      .setReferenceDictionary(dict)
-      .build
-
-    val header = SvHeader.createSvHeader(samples)
-    header.setSequenceDictionary(dict)
-    writer.writeHeader(header)
-
-    Init(dict, readers, headers, samples, writer)
   }
 
   def descriptionText: String =
