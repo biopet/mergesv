@@ -1,0 +1,4 @@
+##fileformat=VCFv4.2
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr2	321681	bnd_W	G	G]17:198982]	6	PASS	SVTYPE=BND

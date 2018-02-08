@@ -44,6 +44,8 @@ object SvHeader {
   /** This is a copy of the vcf 4.2 specs */
   def svHeaderLines: String =
     """##fileformat=VCFv4.2
+      |##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+      |##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">
       |##INFO=<ID=CIPOS,Number=2,Type=Integer,Description="Confidence interval around POS for imprecise variants">
       |##INFO=<ID=CIEND,Number=2,Type=Integer,Description="Confidence interval around END for imprecise variants">
       |##INFO=<ID=HOMLEN,Number=.,Type=Integer,Description="Length of base pair identical micro-homology at event breakpoints">
