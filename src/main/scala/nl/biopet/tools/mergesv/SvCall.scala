@@ -54,7 +54,7 @@ case class SvCall(contig1: String,
     this.posCi.overlapWith(other.posCi) && this.endCi.overlapWith(other.endCi)
   }
 
-  private def altAllele(referenceAllele: Allele) = svType match {
+  private def alternativeAllele(referenceAllele: Allele) = svType match {
     case "BND" =>
       (orientation1, orientation2) match {
         case (true, true) =>
@@ -82,7 +82,7 @@ case class SvCall(contig1: String,
       referenceReader: IndexedFastaSequenceFile): VariantContext = {
 
     val refAllele = referenceAllele(referenceReader)
-    val altAllele = altAllele(refAllele)
+    val altAllele = alternativeAllele(refAllele)
 
     val genotypes = existsInSamples.map(sample =>
       new GenotypeBuilder().name(sample).alleles(altAllele :: Nil).make())
