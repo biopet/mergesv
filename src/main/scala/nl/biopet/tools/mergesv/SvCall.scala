@@ -145,14 +145,15 @@ object SvCall {
   private def getBndSvCall(variant: VariantContext, contig1: String, pos1: Int, caller: String, samples: List[String], defaultCi: Int): SvCall = {
     require(variant.getAlternateAlleles.size() == 1,
       "Multiple alleles are not supported")
-    val (contig2, pos2, ori1, ori2) = variant.getAlternateAlleles.headOption.map(_.getDisplayString).getOrElse("N") match {
+    val altAlleleString = variant.getAlternateAlleles.headOption.map(_.getDisplayString).getOrElse("N")
+    val (contig2, pos2, ori1, ori2) = altAlleleString match {
         case bndRegexFF(c, p) => (c, p.toInt, true, true)
         case bndRegexFR(c, p) => (c, p.toInt, true, false)
         case bndRegexRF(c, p) => (c, p.toInt, false, true)
         case bndRegexRR(c, p) => (c, p.toInt, false, false)
         case _ =>
           throw new IllegalStateException(
-            s"Contig and position not found in ${variant.getAlternateAlleles.head.getDisplayString}")
+            s"Contig and position not found in '$altAlleleString'")
       }
     val (ciPos, ciEnd) = getCi(variant, pos1, pos2, defaultCi)
     SvCall(contig1,

@@ -66,7 +66,7 @@ class MultiReader(init: Init,
             }
       }
       nextCalls.toList
-        .sortBy(_._3.getStart)
+        .sortBy { case (_, _, call) => call.getStart }
         .headOption
         .map { case (caller, idx, _) => SvCall.from(buffers(caller)(idx).head, caller, defaultCi) }
     } else None

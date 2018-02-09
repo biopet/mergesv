@@ -34,13 +34,11 @@ object MergeMethod extends Enumeration {
             if (overlap.getOrElse(true, Nil).nonEmpty) {
               val overlapping = overlap(true)
               val posCi = overlapping
-                .foldLeft(Option(call.posCi))((a, b) =>
-                  a.flatMap(_.extend(b.posCi)))
-                .get
+                .foldLeft(call.posCi)((a, b) =>
+                  a.extend(b.posCi).getOrElse(a))
               val endCi = overlapping
-                .foldLeft(Option(call.endCi))((a, b) =>
-                  a.flatMap(_.extend(b.endCi)))
-                .get
+                .foldLeft(call.endCi)((a, b) =>
+                  a.extend(b.endCi).getOrElse(a))
               val newCall = SvCall(
                 call.contig1,
                 posCi.getMiddle,
