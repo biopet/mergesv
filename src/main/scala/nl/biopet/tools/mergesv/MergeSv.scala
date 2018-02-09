@@ -47,7 +47,10 @@ object MergeSv extends ToolCommand[Args] {
 
     val init = Init.createInit(cmdArgs)
 
-    slidingWindow(init, cmdArgs.windowsSize, cmdArgs.defaultCi)
+    slidingWindow(init,
+                  cmdArgs.windowsSize,
+                  cmdArgs.defaultCi,
+                  cmdArgs.keepNonVariant)
 
     init.readers.foreach { case (key, list) => key -> list.foreach(_.close) }
     init.writer.close()
@@ -55,18 +58,26 @@ object MergeSv extends ToolCommand[Args] {
     logger.info("Done")
   }
 
-  def slidingWindow(init: Init, windowSize: Int, defaultCi: Int): Unit = {
+  def slidingWindow(init: Init,
+                    windowSize: Int,
+                    defaultCi: Int,
+                    keepNonVariants: Boolean): Unit = {
     for (contig <- init.dict.getSequences) {
-      val multiReader = new MultiReader(init, contig, defaultCi)
+      logger.info(s"Starting on ${contig.getSequenceName}")
+      val multiReader =
+        new MultiReader(init, contig, defaultCi, keepNonVariants)
 
+      var writeCount = 0L
       def readWrite(buf: List[SvCall] = Nil): Unit = {
 
         if (multiReader.hasNext) {
           val split = buf.groupBy(
             _.pos1 >= (multiReader.headOption.get.pos1 - windowSize))
-          val write = split.getOrElse(false, Nil)
-          write.foreach(c =>
-            init.writer.add(c.toVariantContext(init.referenceReader)))
+          val write = split.getOrElse(false, Nil).sortBy(_.pos1)
+          write.foreach { c =>
+            writeCount += 1
+            init.writer.add(c.toVariantContext(init.referenceReader))
+          }
           val keep = split.getOrElse(true, Nil)
           val end =
             if (keep.isEmpty) multiReader.headOption.get.pos1 + windowSize
@@ -81,14 +92,19 @@ object MergeSv extends ToolCommand[Args] {
             newCalls ::: split.getOrElse(true, Nil))
           readWrite(newBuf)
         } else {
-          buf.foreach(c =>
-            init.writer.add(c.toVariantContext(init.referenceReader)))
+          buf.sortBy(_.pos1).foreach { c =>
+            writeCount += 1
+            init.writer.add(c.toVariantContext(init.referenceReader))
+          }
         }
       }
 
       readWrite()
 
-      println(multiReader.total)
+      logger.info(
+        multiReader.total + s" variants found on ${contig.getSequenceName}")
+      logger.info(
+        writeCount + s" variants writen for ${contig.getSequenceName}")
 
       multiReader.close()
     }

@@ -27,7 +27,12 @@ import htsjdk.variant.variantcontext.writer.{
   VariantContextWriter,
   VariantContextWriterBuilder
 }
-import htsjdk.variant.vcf.{VCFFileReader, VCFHeader}
+import htsjdk.variant.vcf.{
+  VCFCompoundHeaderLine,
+  VCFFileReader,
+  VCFHeader,
+  VCFHeaderLine
+}
 import nl.biopet.utils.ngs.fasta
 
 import scala.collection.JavaConversions._
@@ -65,6 +70,7 @@ object Init {
 
     val header = SvHeader.createSvHeader(samples)
     header.setSequenceDictionary(dict)
+    //header.addMetaDataLine(VCFHeaderLine)
     writer.writeHeader(header)
 
     Init(dict, readers, headers, samples, writer, referenceReader)

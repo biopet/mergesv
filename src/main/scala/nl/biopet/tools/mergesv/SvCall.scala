@@ -30,6 +30,7 @@ import htsjdk.variant.variantcontext.{
   VariantContext,
   VariantContextBuilder
 }
+import nl.biopet.utils.Logging
 
 import scala.collection.JavaConversions._
 import scala.util.matching.Regex
@@ -44,7 +45,8 @@ case class SvCall(contig1: String,
                   callers: List[String],
                   orientation1: Boolean = true,
                   orientation2: Boolean = true,
-                  existsInSamples: List[String] = Nil) { //TODO: Genotypes
+                  existsInSamples: List[String] = Nil)
+    extends Logging { //TODO: Genotypes
 
   def overlapWith(other: SvCall): Boolean = {
     this.contig1 == other.contig1 && this.contig2 == other.contig2 &&
@@ -54,11 +56,19 @@ case class SvCall(contig1: String,
 
   def toVariantContext(
       referenceReader: IndexedFastaSequenceFile): VariantContext = {
-    //TODO: Genotypes
 
-    val referenceAllele = Allele.create(
-      referenceReader.getSubsequenceAt(contig1, pos1, pos1).getBaseString,
-      true)
+    val referenceAllele = try {
+      val sequence =
+        referenceReader.getSubsequenceAt(contig1, pos1, pos1).getBaseString
+      Allele.create(sequence match {
+        case "A" | "T" | "C" | "G" => sequence
+        case _ => "N"
+      }, true)
+    } catch {
+      case e =>
+        logger.error(s"Something went wrong with: ${this}'")
+        throw e
+    }
 
     val altAllele = svType match {
       case "BND" =>
@@ -87,7 +97,7 @@ case class SvCall(contig1: String,
                    Array(posCi.relativeStart(pos1), posCi.relativeEnd(pos1)))
         .attribute("CIEND",
                    Array(endCi.relativeStart(pos2), endCi.relativeEnd(pos2)))
-        .attribute("CALLERS", callers.mkString(","))
+        .attribute("CALLERS", callers.sorted.mkString(","))
         .genotypes(genotypes)
 
     svType match {
@@ -97,8 +107,10 @@ case class SvCall(contig1: String,
           .make()
       case _ =>
         commonBuilder
-          .stop(pos2)
+          .attribute("SVLEN", pos2 - pos1)
           .alleles(referenceAllele :: altAllele :: Nil)
+          .stop(pos2)
+          .attribute("END", pos2)
           .make()
     }
   }
@@ -135,9 +147,11 @@ object SvCall {
           (Interval(pos1 + p(0), pos1 + p(1)),
            Interval(pos2 + e(0), pos2 + e(1)))
         case (_, _, len: util.ArrayList[String]) =>
+          val svLen = pos2 - pos1
           val l = len.map(_.toInt)
-          (Interval(pos1 + l(0), pos1 + l(1)),
-           Interval(pos2 + l(0), pos2 + l(1)))
+          val middle = Interval(l(0), l(1)).getMiddle
+          (Interval(middle - l(1) + pos1, middle - l(0) + pos1),
+           Interval(middle - l(1) + pos2, middle - l(0) + pos2))
         case _ =>
           (Interval(pos1 - defaultCi, pos1 + defaultCi),
            Interval(pos2 - defaultCi, pos2 + defaultCi))
@@ -170,9 +184,13 @@ object SvCall {
                ori2,
                samples)
       case "DEL" | "INS" | "INV" | "DUP" | "CNV" =>
-        val end = Option(variant.getAttribute("END"))
+        val end: Int = Option(variant.getAttribute("END"))
           .map(_.toString.toInt)
-          .getOrElse(pos1) //TODO
+          .getOrElse {
+            Option(variant.getAttribute("SVLEN"))
+              .map(_.toString.toInt.abs + pos1)
+              .getOrElse(pos1)
+          }
         val (ciPos, ciEnd) = getCi(pos1, end)
         SvCall(contig1,
                pos1,

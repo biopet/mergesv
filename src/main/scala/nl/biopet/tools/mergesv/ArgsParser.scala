@@ -52,4 +52,9 @@ class ArgsParser(toolCommand: ToolCommand[Args])
     .action((x, c) => c.copy(defaultCi = x))
     .text(
       s"Interval when caller does not give one, default is ${Args().defaultCi} basepair")
+  opt[Unit]("keepNonVariant")
+    .action((_, c) => c.copy(keepNonVariant = true))
+    .text(
+      s"By default calls without a genotype with a alternative allele will be filtered. " +
+        s"This option keeps them in the merging.")
 }

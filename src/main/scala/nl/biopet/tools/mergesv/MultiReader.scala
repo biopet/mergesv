@@ -21,13 +21,18 @@
 
 package nl.biopet.tools.mergesv
 
+import nl.biopet.utils.ngs.vcf
+
 import htsjdk.samtools.SAMSequenceRecord
 import htsjdk.samtools.util.CloseableIterator
 import htsjdk.variant.variantcontext.VariantContext
 
 import scala.collection.JavaConversions._
 
-class MultiReader(init: Init, contig: SAMSequenceRecord, defaultCi: Int)
+class MultiReader(init: Init,
+                  contig: SAMSequenceRecord,
+                  defaultCi: Int,
+                  keepNonVariants: Boolean)
     extends Iterator[SvCall]
     with AutoCloseable {
 
@@ -35,12 +40,15 @@ class MultiReader(init: Init, contig: SAMSequenceRecord, defaultCi: Int)
     init.readers.map {
       case (caller, readers) =>
         caller -> readers.map(
-          _.query(contig.getSequenceName, 0, contig.getSequenceLength))
+          _.query(contig.getSequenceName, 1, contig.getSequenceLength))
     }
   protected val buffers: Map[String, Array[BufferedIterator[VariantContext]]] =
     its.map {
       case (caller, it) =>
-        caller -> it.map(_.buffered).toArray
+        caller -> it
+          .map(_.filter(_.getGenotypes.exists(g =>
+            keepNonVariants || g.isCalled && !g.isHomRef)).buffered)
+          .toArray
     }
 
   def hasNext: Boolean = buffers.exists(_._2.exists(_.hasNext))
@@ -64,10 +72,11 @@ class MultiReader(init: Init, contig: SAMSequenceRecord, defaultCi: Int)
     } else None
   }
 
-  var total = 0
+  var _total = 0L
+  def total: Long = _total
 
   def next(): SvCall = {
-    total += 1
+    _total += 1
     val nextCalls = buffers.flatMap {
       case (caller, readers) =>
         readers.zipWithIndex
