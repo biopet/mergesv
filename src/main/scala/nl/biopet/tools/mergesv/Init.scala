@@ -22,6 +22,7 @@
 package nl.biopet.tools.mergesv
 
 import htsjdk.samtools.SAMSequenceDictionary
+import htsjdk.samtools.reference.IndexedFastaSequenceFile
 import htsjdk.variant.variantcontext.writer.{
   VariantContextWriter,
   VariantContextWriterBuilder
@@ -35,11 +36,14 @@ case class Init(dict: SAMSequenceDictionary,
                 readers: Map[String, List[VCFFileReader]],
                 headers: Map[String, List[VCFHeader]],
                 samples: Seq[String],
-                writer: VariantContextWriter)
+                writer: VariantContextWriter,
+                referenceReader: IndexedFastaSequenceFile)
 
 object Init {
   def createInit(cmdArgs: Args): Init = {
     val dict = fasta.getCachedDict(cmdArgs.referenceFasta)
+
+    val referenceReader = new IndexedFastaSequenceFile(cmdArgs.referenceFasta)
 
     val readers = cmdArgs.inputFiles.map {
       case (key, list) => key -> list.map(new VCFFileReader(_))
@@ -63,6 +67,6 @@ object Init {
     header.setSequenceDictionary(dict)
     writer.writeHeader(header)
 
-    Init(dict, readers, headers, samples, writer)
+    Init(dict, readers, headers, samples, writer, referenceReader)
   }
 }

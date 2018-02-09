@@ -46,11 +46,16 @@ object MergeSv extends ToolCommand[Args] {
 
     val init = Init.createInit(cmdArgs)
 
-    //TODO: Merging
+    slidingWindow(init)
 
     init.readers.foreach { case (key, list) => key -> list.foreach(_.close) }
     init.writer.close()
+    init.referenceReader.close()
     logger.info("Done")
+  }
+
+  def slidingWindow(init: Init): Unit = {
+    ???
   }
 
   def descriptionText: String =
