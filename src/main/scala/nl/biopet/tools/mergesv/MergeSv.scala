@@ -34,6 +34,7 @@ import nl.biopet.utils.io
 import nl.biopet.utils.tool.ToolCommand
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
 
 object MergeSv extends ToolCommand[Args] {
   def emptyArgs = Args()
@@ -46,7 +47,7 @@ object MergeSv extends ToolCommand[Args] {
 
     val init = Init.createInit(cmdArgs)
 
-    slidingWindow(init)
+    slidingWindow(init, cmdArgs.windowsSize, cmdArgs.defaultCi)
 
     init.readers.foreach { case (key, list) => key -> list.foreach(_.close) }
     init.writer.close()
@@ -54,8 +55,43 @@ object MergeSv extends ToolCommand[Args] {
     logger.info("Done")
   }
 
-  def slidingWindow(init: Init): Unit = {
-    ???
+  def slidingWindow(init: Init, windowSize: Int, defaultCi: Int): Unit = {
+    for (contig <- init.dict.getSequences) {
+      val multiReader = new MultiReader(init, contig, defaultCi)
+
+      def readWrite(buf: List[SvCall] = Nil): Unit = {
+
+        if (multiReader.hasNext) {
+          val split = buf.groupBy(
+            _.pos1 >= (multiReader.headOption.get.pos1 - windowSize))
+          val write = split.getOrElse(false, Nil)
+          write.foreach(c =>
+            init.writer.add(c.toVariantContext(init.referenceReader)))
+          val keep = split.getOrElse(true, Nil)
+          val end =
+            if (keep.isEmpty) multiReader.headOption.get.pos1 + windowSize
+            else keep.map(_.pos1).min + windowSize
+          val newCalls = {
+            val b = new ListBuffer[SvCall]
+            while (multiReader.headOption.exists(_.pos1 <= end)) b.append(
+              multiReader.next())
+            b.toList
+          }
+          val newBuf = MergeMethod.mergeExtendCalls(
+            newCalls ::: split.getOrElse(true, Nil))
+          readWrite(newBuf)
+        } else {
+          buf.foreach(c =>
+            init.writer.add(c.toVariantContext(init.referenceReader)))
+        }
+      }
+
+      readWrite()
+
+      println(multiReader.total)
+
+      multiReader.close()
+    }
   }
 
   def descriptionText: String =

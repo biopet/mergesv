@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package nl.biopet.tools.mergesv
 
 import java.util
@@ -5,6 +26,7 @@ import java.util
 import htsjdk.samtools.reference.IndexedFastaSequenceFile
 import htsjdk.variant.variantcontext.{
   Allele,
+  GenotypeBuilder,
   VariantContext,
   VariantContextBuilder
 }
@@ -21,19 +43,40 @@ case class SvCall(contig1: String,
                   endCi: Interval,
                   callers: List[String],
                   orientation1: Boolean = true,
-                  orientation2: Boolean = true) { //TODO: Genotypes
+                  orientation2: Boolean = true,
+                  existsInSamples: List[String] = Nil) { //TODO: Genotypes
 
   def overlapWith(other: SvCall): Boolean = {
     this.contig1 == other.contig1 && this.contig2 == other.contig2 &&
+    this.orientation1 == other.orientation1 && this.orientation2 == other.orientation2 &&
     this.posCi.overlapWith(other.posCi) && this.endCi.overlapWith(other.endCi)
   }
 
   def toVariantContext(
       referenceReader: IndexedFastaSequenceFile): VariantContext = {
+    //TODO: Genotypes
 
     val referenceAllele = Allele.create(
       referenceReader.getSubsequenceAt(contig1, pos1, pos1).getBaseString,
       true)
+
+    val altAllele = svType match {
+      case "BND" =>
+        (orientation1, orientation2) match {
+          case (true, true) =>
+            Allele.create(s"${referenceAllele.getBaseString}[$contig2:$pos2[")
+          case (true, false) =>
+            Allele.create(s"${referenceAllele.getBaseString}]$contig2:$pos2]")
+          case (false, true) =>
+            Allele.create(s"[$contig2:$pos2[${referenceAllele.getBaseString}")
+          case (false, false) =>
+            Allele.create(s"]$contig2:$pos2]${referenceAllele.getBaseString}")
+        }
+      case _ => Allele.create(s"<$svType>")
+    }
+
+    val genotypes = existsInSamples.map(sample =>
+      new GenotypeBuilder().name(sample).alleles(altAllele :: Nil).make())
 
     def commonBuilder =
       new VariantContextBuilder()
@@ -44,24 +87,15 @@ case class SvCall(contig1: String,
                    Array(posCi.relativeStart(pos1), posCi.relativeEnd(pos1)))
         .attribute("CIEND",
                    Array(endCi.relativeStart(pos2), endCi.relativeEnd(pos2)))
+        .attribute("CALLERS", callers.mkString(","))
+        .genotypes(genotypes)
 
     svType match {
       case "BND" =>
-        val altAllele = (orientation1, orientation2) match {
-          case (true, true) =>
-            Allele.create(s"${referenceAllele.getBaseString}[$contig2:$pos2[")
-          case (true, false) =>
-            Allele.create(s"${referenceAllele.getBaseString}]$contig2:$pos2]")
-          case (false, true) =>
-            Allele.create(s"[$contig2:$pos2[${referenceAllele.getBaseString}")
-          case (false, false) =>
-            Allele.create(s"]$contig2:$pos2]${referenceAllele.getBaseString}")
-        }
         commonBuilder
           .alleles(referenceAllele :: altAllele :: Nil)
           .make()
       case _ =>
-        val altAllele = Allele.create(s"<$svType>")
         commonBuilder
           .stop(pos2)
           .alleles(referenceAllele :: altAllele :: Nil)
@@ -85,6 +119,11 @@ object SvCall {
       case _ =>
         throw new IllegalStateException("Variant does not have tag 'SVTYPE'")
     }
+
+    val samples = variant.getGenotypes
+      .filter(v => v.isCalled && !v.isHomRef)
+      .map(_.getSampleName)
+      .toList
 
     def getCi(pos1: Int, pos2: Int): (Interval, Interval) =
       (variant.getAttribute("CIPOS"),
@@ -128,7 +167,8 @@ object SvCall {
                ciEnd,
                caller :: Nil,
                ori1,
-               ori2)
+               ori2,
+               samples)
       case "DEL" | "INS" | "INV" | "DUP" | "CNV" =>
         val end = Option(variant.getAttribute("END"))
           .map(_.toString.toInt)
@@ -141,7 +181,8 @@ object SvCall {
                svType,
                ciPos,
                ciEnd,
-               caller :: Nil)
+               caller :: Nil,
+               existsInSamples = samples)
       case _ =>
         throw new IllegalStateException(s"Svtype '$svType' does not exist")
     }

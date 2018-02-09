@@ -48,4 +48,8 @@ class ArgsParser(toolCommand: ToolCommand[Args])
   opt[Int]("windowsSize")
     .action((x, c) => c.copy(windowsSize = x))
     .text(s"Size of sliding window, default is ${Args().windowsSize} basepair")
+  opt[Int]("defaultCi")
+    .action((x, c) => c.copy(defaultCi = x))
+    .text(
+      s"Interval when caller does not give one, default is ${Args().defaultCi} basepair")
 }
