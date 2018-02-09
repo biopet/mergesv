@@ -46,7 +46,7 @@ case class SvCall(contig1: String,
                   orientation1: Boolean = true,
                   orientation2: Boolean = true,
                   existsInSamples: List[String] = Nil)
-    extends Logging { //TODO: Genotypes
+    extends Logging {
 
   def overlapWith(other: SvCall): Boolean = {
     this.contig1 == other.contig1 && this.contig2 == other.contig2 &&
