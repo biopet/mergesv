@@ -51,10 +51,10 @@ class MultiReader(init: Init,
           .toArray
     }
 
-  def hasNext: Boolean = buffers.exists(_._2.exists(_.hasNext))
+  def hasNext: Boolean = buffers.exists { case (_, readers) => readers.exists(_.hasNext) }
 
   def headOption: Option[SvCall] = {
-    if (buffers.exists(_._2.exists(_.hasNext))) {
+    if (hasNext) {
       val nextCalls = buffers.flatMap {
         case (caller, readers) =>
           readers.zipWithIndex
@@ -68,7 +68,7 @@ class MultiReader(init: Init,
       nextCalls.toList
         .sortBy(_._3.getStart)
         .headOption
-        .map(x => SvCall.from(buffers(x._1)(x._2).head, x._1, defaultCi))
+        .map { case (caller, idx, _) => SvCall.from(buffers(caller)(idx).head, caller, defaultCi) }
     } else None
   }
 
@@ -88,14 +88,14 @@ class MultiReader(init: Init,
           }
     }
     nextCalls.toList
-      .sortBy(_._3.getStart)
+      .sortBy { case (_, _, call) => call.getStart }
       .headOption
-      .map(x => SvCall.from(buffers(x._1)(x._2).next(), x._1, defaultCi))
+      .map { case (caller, idx, _) => SvCall.from(buffers(caller)(idx).next(), caller, defaultCi) }
       .getOrElse(throw new IllegalStateException(
         "No records, please check .hasNext first"))
   }
 
   def close(): Unit = {
-    its.foreach(_._2.foreach(_.close()))
+    its.foreach { case (_, readers) => readers.foreach(_.close()) }
   }
 }
