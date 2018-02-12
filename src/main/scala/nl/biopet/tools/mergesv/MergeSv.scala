@@ -72,7 +72,9 @@ object MergeSv extends ToolCommand[Args] {
 
         if (multiReader.hasNext) {
           val split = buf.groupBy(
-            _.pos1 >= (multiReader.headOption.map(_.pos1).getOrElse(0) - windowSize))
+            _.pos1 >= (multiReader.headOption
+              .map(_.pos1)
+              .getOrElse(0) - windowSize))
           val write = split.getOrElse(false, Nil).sortBy(_.pos1)
           write.foreach { c =>
             writeCount += 1
@@ -80,7 +82,8 @@ object MergeSv extends ToolCommand[Args] {
           }
           val keep = split.getOrElse(true, Nil)
           val end =
-            if (keep.isEmpty) multiReader.headOption.map(_.pos1).getOrElse(0) + windowSize
+            if (keep.isEmpty)
+              multiReader.headOption.map(_.pos1).getOrElse(0) + windowSize
             else keep.map(_.pos1).min + windowSize
           val newCalls = {
             val b = new ListBuffer[SvCall]

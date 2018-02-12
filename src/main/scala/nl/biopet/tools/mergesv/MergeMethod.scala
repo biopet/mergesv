@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
+ * Copyright (c) 2018 Biopet
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,11 +34,9 @@ object MergeMethod extends Enumeration {
             if (overlap.getOrElse(true, Nil).nonEmpty) {
               val overlapping = overlap(true)
               val posCi = overlapping
-                .foldLeft(call.posCi)((a, b) =>
-                  a.extend(b.posCi).getOrElse(a))
+                .foldLeft(call.posCi)((a, b) => a.extend(b.posCi).getOrElse(a))
               val endCi = overlapping
-                .foldLeft(call.endCi)((a, b) =>
-                  a.extend(b.endCi).getOrElse(a))
+                .foldLeft(call.endCi)((a, b) => a.extend(b.endCi).getOrElse(a))
               val newCall = SvCall(
                 call.contig1,
                 posCi.getMiddle,

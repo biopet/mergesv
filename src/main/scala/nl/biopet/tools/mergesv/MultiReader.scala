@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
+ * Copyright (c) 2018 Biopet
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -51,7 +51,9 @@ class MultiReader(init: Init,
           .toArray
     }
 
-  def hasNext: Boolean = buffers.exists { case (_, readers) => readers.exists(_.hasNext) }
+  def hasNext: Boolean = buffers.exists {
+    case (_, readers) => readers.exists(_.hasNext)
+  }
 
   def headOption: Option[SvCall] = {
     if (hasNext) {
@@ -68,7 +70,10 @@ class MultiReader(init: Init,
       nextCalls.toList
         .sortBy { case (_, _, call) => call.getStart }
         .headOption
-        .map { case (caller, idx, _) => SvCall.from(buffers(caller)(idx).head, caller, defaultCi) }
+        .map {
+          case (caller, idx, _) =>
+            SvCall.from(buffers(caller)(idx).head, caller, defaultCi)
+        }
     } else None
   }
 
@@ -90,7 +95,10 @@ class MultiReader(init: Init,
     nextCalls.toList
       .sortBy { case (_, _, call) => call.getStart }
       .headOption
-      .map { case (caller, idx, _) => SvCall.from(buffers(caller)(idx).next(), caller, defaultCi) }
+      .map {
+        case (caller, idx, _) =>
+          SvCall.from(buffers(caller)(idx).next(), caller, defaultCi)
+      }
       .getOrElse(throw new IllegalStateException(
         "No records, please check .hasNext first"))
   }

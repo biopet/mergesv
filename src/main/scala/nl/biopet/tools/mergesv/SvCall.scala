@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
+ * Copyright (c) 2018 Biopet
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -122,54 +122,70 @@ object SvCall {
   val bndRegexRF: Regex = """\[(.*):(\d+)\[.*""".r
   val bndRegexRR: Regex = """\](.*):(\d+)\].*""".r
 
-  private def getCi(variant: VariantContext, pos1: Int, pos2: Int, defaultCi: Int): (Interval, Interval) =
+  private def getCi(variant: VariantContext,
+                    pos1: Int,
+                    pos2: Int,
+                    defaultCi: Int): (Interval, Interval) =
     (variant.getAttribute("CIPOS"),
-      variant.getAttribute("CIEND"),
-      variant.getAttribute("CILEN")) match {
+     variant.getAttribute("CIEND"),
+     variant.getAttribute("CILEN")) match {
       case (pos: util.ArrayList[String], end: util.ArrayList[String], _) =>
         val p = pos.map(_.toInt)
         val e = end.map(_.toInt)
         (Interval(pos1 + p(0), pos1 + p(1)),
-          Interval(pos2 + e(0), pos2 + e(1)))
+         Interval(pos2 + e(0), pos2 + e(1)))
       case (_, _, len: util.ArrayList[String]) =>
         val svLen = pos2 - pos1
         val l = len.map(_.toInt)
         val middle = Interval(l(0), l(1)).getMiddle
         (Interval(middle - l(1) + pos1, middle - l(0) + pos1),
-          Interval(middle - l(1) + pos2, middle - l(0) + pos2))
+         Interval(middle - l(1) + pos2, middle - l(0) + pos2))
       case _ =>
         (Interval(pos1 - defaultCi, pos1 + defaultCi),
-          Interval(pos2 - defaultCi, pos2 + defaultCi))
+         Interval(pos2 - defaultCi, pos2 + defaultCi))
     }
 
-  private def getBndSvCall(variant: VariantContext, contig1: String, pos1: Int, caller: String, samples: List[String], defaultCi: Int): SvCall = {
+  private def getBndSvCall(variant: VariantContext,
+                           contig1: String,
+                           pos1: Int,
+                           caller: String,
+                           samples: List[String],
+                           defaultCi: Int): SvCall = {
     require(variant.getAlternateAlleles.size() == 1,
-      "Multiple alleles are not supported")
-    val altAlleleString = variant.getAlternateAlleles.headOption.map(_.getDisplayString).getOrElse("N")
+            "Multiple alleles are not supported")
+    val altAlleleString = variant.getAlternateAlleles.headOption
+      .map(_.getDisplayString)
+      .getOrElse("N")
     val (contig2, pos2, ori1, ori2) = altAlleleString match {
-        case bndRegexFF(c, p) => (c, p.toInt, true, true)
-        case bndRegexFR(c, p) => (c, p.toInt, true, false)
-        case bndRegexRF(c, p) => (c, p.toInt, false, true)
-        case bndRegexRR(c, p) => (c, p.toInt, false, false)
-        case _ =>
-          throw new IllegalStateException(
-            s"Contig and position not found in '$altAlleleString'")
-      }
+      case bndRegexFF(c, p) => (c, p.toInt, true, true)
+      case bndRegexFR(c, p) => (c, p.toInt, true, false)
+      case bndRegexRF(c, p) => (c, p.toInt, false, true)
+      case bndRegexRR(c, p) => (c, p.toInt, false, false)
+      case _ =>
+        throw new IllegalStateException(
+          s"Contig and position not found in '$altAlleleString'")
+    }
     val (ciPos, ciEnd) = getCi(variant, pos1, pos2, defaultCi)
     SvCall(contig1,
-      pos1,
-      contig2,
-      pos2,
-      "BND",
-      ciPos,
-      ciEnd,
-      caller :: Nil,
-      ori1,
-      ori2,
-      samples)
+           pos1,
+           contig2,
+           pos2,
+           "BND",
+           ciPos,
+           ciEnd,
+           caller :: Nil,
+           ori1,
+           ori2,
+           samples)
   }
 
-  private def getSvCall(variant: VariantContext, contig1: String, pos1: Int, svType: String, caller: String, samples: List[String], defaultCi: Int): SvCall = {
+  private def getSvCall(variant: VariantContext,
+                        contig1: String,
+                        pos1: Int,
+                        svType: String,
+                        caller: String,
+                        samples: List[String],
+                        defaultCi: Int): SvCall = {
     val end: Int = Option(variant.getAttribute("END"))
       .map(_.toString.toInt)
       .getOrElse {
@@ -179,14 +195,14 @@ object SvCall {
       }
     val (ciPos, ciEnd) = getCi(variant, pos1, end, defaultCi)
     SvCall(contig1,
-      pos1,
-      contig1,
-      end,
-      svType,
-      ciPos,
-      ciEnd,
-      caller :: Nil,
-      existsInSamples = samples)
+           pos1,
+           contig1,
+           end,
+           svType,
+           ciPos,
+           ciEnd,
+           caller :: Nil,
+           existsInSamples = samples)
 
   }
 
@@ -205,8 +221,10 @@ object SvCall {
       .toList
 
     svType match {
-      case "BND" => getBndSvCall(variant, contig1, pos1, caller, samples, defaultCi)
-      case "DEL" | "INS" | "INV" | "DUP" | "CNV" => getSvCall(variant, contig1, pos1, svType, caller, samples, defaultCi)
+      case "BND" =>
+        getBndSvCall(variant, contig1, pos1, caller, samples, defaultCi)
+      case "DEL" | "INS" | "INV" | "DUP" | "CNV" =>
+        getSvCall(variant, contig1, pos1, svType, caller, samples, defaultCi)
       case _ =>
         throw new IllegalStateException(s"Svtype '$svType' does not exist")
     }
