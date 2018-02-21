@@ -21,11 +21,32 @@
 
 package nl.biopet.tools.mergesv
 
-import java.io.File
+case class Interval(start: Int, end: Int) {
+  require(start <= end, "Start should be lower then end")
+  def overlapWith(other: Interval): Boolean = {
+    this.start <= other.end && other.start <= this.end
+  }
 
-case class Args(inputFiles: Map[String, List[File]] = Map(),
-                outputFile: File = null,
-                referenceFasta: File = null,
-                windowsSize: Int = 1000,
-                defaultCi: Int = 75,
-                keepNonVariant: Boolean = false)
+  def extend(other: Interval): Option[Interval] = {
+    if (this.overlapWith(other)) {
+      Some(
+        Interval(List(this.start, other.start).min,
+                 List(this.end, other.end).max))
+    } else None
+  }
+
+  def shrink(other: Interval): Option[Interval] = {
+    if (this.overlapWith(other)) {
+      Some(
+        Interval(List(this.start, other.start).max,
+                 List(this.end, other.end).min))
+    } else None
+  }
+
+  def getMiddle: Int = {
+    ((end - start) / 2) + start
+  }
+
+  def relativeStart(pos: Int): Int = start - pos
+  def relativeEnd(pos: Int): Int = end - pos
+}

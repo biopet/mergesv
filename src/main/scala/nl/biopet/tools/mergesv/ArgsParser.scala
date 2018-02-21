@@ -45,4 +45,16 @@ class ArgsParser(toolCommand: ToolCommand[Args])
     .required()
     .action((x, c) => c.copy(referenceFasta = x))
     .text("Reference fasta file")
+  opt[Int]("windowsSize")
+    .action((x, c) => c.copy(windowsSize = x))
+    .text(s"Size of sliding window, default is ${Args().windowsSize} basepair")
+  opt[Int]("defaultCi")
+    .action((x, c) => c.copy(defaultCi = x))
+    .text(
+      s"Interval when caller does not give one, default is ${Args().defaultCi} basepair")
+  opt[Unit]("keepNonVariant")
+    .action((_, c) => c.copy(keepNonVariant = true))
+    .text(
+      s"By default calls without a genotype with a alternative allele will be filtered. " +
+        s"This option keeps them in the merging.")
 }
