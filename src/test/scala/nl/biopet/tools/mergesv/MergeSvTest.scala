@@ -69,9 +69,18 @@ class MergeSvTest extends ToolTest[Args] {
   def testBnd(): Unit = {
     val outputFile = File.createTempFile("test.", ".vcf")
     outputFile.deleteOnExit()
-    MergeSv.main(Array("-R", resourcePath("/fake_chrQ.fa"), "-o", outputFile.getAbsolutePath,
-      "-i", "caller=" + resourcePath("/s1.bnd.vcf"), "-i", "caller2=" + resourcePath("/s1.bnd.vcf"),
-      "--keepNonVariant"))
+    MergeSv.main(
+      Array(
+        "-R",
+        resourcePath("/fake_chrQ.fa"),
+        "-o",
+        outputFile.getAbsolutePath,
+        "-i",
+        "caller=" + resourcePath("/s1.bnd.vcf"),
+        "-i",
+        "caller2=" + resourcePath("/s1.bnd.vcf"),
+        "--keepNonVariant"
+      ))
     vcf.getSampleIds(outputFile) shouldBe List("s1")
     val records = vcf.loadRegion(outputFile, BedRecord("chrQ", 1, 10000))
     records.size shouldBe 4

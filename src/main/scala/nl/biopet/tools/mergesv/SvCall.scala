@@ -74,7 +74,7 @@ case class SvCall(contig1: String,
       referenceReader.getSubsequenceAt(contig1, pos1, pos1).getBaseString
     Allele.create(sequence match {
       case "A" | "T" | "C" | "G" => sequence
-      case _ => "N"
+      case _                     => "N"
     }, true)
   }
 
@@ -132,8 +132,7 @@ object SvCall {
       case (pos: util.ArrayList[String], end: util.ArrayList[String], _) =>
         val p = pos.map(_.toInt)
         val e = end.map(_.toInt)
-        (Interval(pos1 + p(0), pos1 + p(1)),
-         Interval(pos2 + e(0), pos2 + e(1)))
+        (Interval(pos1 + p(0), pos1 + p(1)), Interval(pos2 + e(0), pos2 + e(1)))
       case (_, _, len: util.ArrayList[String]) =>
         val svLen = pos2 - pos1
         val l = len.map(_.toInt)
