@@ -144,12 +144,12 @@ object SvCall {
          Interval(pos2 - defaultCi, pos2 + defaultCi))
     }
 
-  private def getBndSvCall(variant: VariantContext,
-                           contig1: String,
-                           pos1: Int,
-                           caller: String,
-                           samples: List[String],
-                           defaultCi: Int): SvCall = {
+  private def createBnd(variant: VariantContext,
+                        contig1: String,
+                        pos1: Int,
+                        caller: String,
+                        samples: List[String],
+                        defaultCi: Int): SvCall = {
     require(variant.getAlternateAlleles.size() == 1,
             "Multiple alleles are not supported")
     val altAlleleString = variant.getAlternateAlleles.headOption
@@ -178,13 +178,13 @@ object SvCall {
            samples)
   }
 
-  private def getSvCall(variant: VariantContext,
-                        contig1: String,
-                        pos1: Int,
-                        svType: String,
-                        caller: String,
-                        samples: List[String],
-                        defaultCi: Int): SvCall = {
+  private def create(variant: VariantContext,
+                     contig1: String,
+                     pos1: Int,
+                     svType: String,
+                     caller: String,
+                     samples: List[String],
+                     defaultCi: Int): SvCall = {
     val end: Int = Option(variant.getAttribute("END"))
       .map(_.toString.toInt)
       .getOrElse {
@@ -221,9 +221,9 @@ object SvCall {
 
     svType match {
       case "BND" =>
-        getBndSvCall(variant, contig1, pos1, caller, samples, defaultCi)
+        createBnd(variant, contig1, pos1, caller, samples, defaultCi)
       case "DEL" | "INS" | "INV" | "DUP" | "CNV" =>
-        getSvCall(variant, contig1, pos1, svType, caller, samples, defaultCi)
+        create(variant, contig1, pos1, svType, caller, samples, defaultCi)
       case _ =>
         throw new IllegalStateException(s"Svtype '$svType' does not exist")
     }

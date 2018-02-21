@@ -57,42 +57,7 @@ object MergeSv extends ToolCommand[Args] {
       val multiReader =
         new MultiReader(init, contig, defaultCi, keepNonVariants)
 
-      var writeCount = 0L
-      def readWrite(buf: List[SvCall] = Nil): Unit = {
-
-        if (multiReader.hasNext) {
-          val split = buf.groupBy(
-            _.pos1 >= (multiReader.headOption
-              .map(_.pos1)
-              .getOrElse(0) - windowSize))
-          val write = split.getOrElse(false, Nil).sortBy(_.pos1)
-          write.foreach { c =>
-            writeCount += 1
-            init.writer.add(c.toVariantContext(init.referenceReader))
-          }
-          val keep = split.getOrElse(true, Nil)
-          val end =
-            if (keep.isEmpty)
-              multiReader.headOption.map(_.pos1).getOrElse(0) + windowSize
-            else keep.map(_.pos1).min + windowSize
-          val newCalls = {
-            val b = new ListBuffer[SvCall]
-            while (multiReader.headOption.exists(_.pos1 <= end)) b.append(
-              multiReader.next())
-            b.toList
-          }
-          val newBuf = MergeMethod.mergeExtendCalls(
-            newCalls ::: split.getOrElse(true, Nil))
-          readWrite(newBuf)
-        } else {
-          buf.sortBy(_.pos1).foreach { c =>
-            writeCount += 1
-            init.writer.add(c.toVariantContext(init.referenceReader))
-          }
-        }
-      }
-
-      readWrite()
+      val writeCount = readWrite(multiReader, windowSize, init)
 
       logger.info(
         multiReader.total + s" variants found on ${contig.getSequenceName}")
@@ -101,6 +66,42 @@ object MergeSv extends ToolCommand[Args] {
 
       multiReader.close()
     }
+  }
+
+  private def writeToFile(buf: List[SvCall], init: Init): Long = {
+    buf.sortBy(_.pos1).foreach { c =>
+      init.writer.add(c.toVariantContext(init.referenceReader))
+    }
+    buf.size
+  }
+
+  private def readWrite(multiReader: MultiReader,
+                        windowSize: Int,
+                        init: Init,
+                        buf: List[SvCall] = Nil): Long = {
+    var writeCount = 0L
+    if (multiReader.hasNext) {
+      val split = buf.groupBy(
+        _.pos1 >= (multiReader.headOption
+          .map(_.pos1)
+          .getOrElse(0) - windowSize))
+      writeCount += writeToFile(split.getOrElse(false, Nil), init)
+      val keep = split.getOrElse(true, Nil)
+      val end =
+        if (keep.isEmpty)
+          multiReader.headOption.map(_.pos1).getOrElse(0) + windowSize
+        else keep.map(_.pos1).min + windowSize
+      val newCalls = {
+        val b = new ListBuffer[SvCall]
+        while (multiReader.headOption.exists(_.pos1 <= end)) b.append(
+          multiReader.next())
+        b.toList
+      }
+      val newBuf =
+        MergeMethod.mergeExtendCalls(newCalls ::: split.getOrElse(true, Nil))
+      readWrite(multiReader, windowSize, init, newBuf)
+    } else writeCount += writeToFile(buf, init)
+    writeCount
   }
 
   def descriptionText: String =
