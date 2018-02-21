@@ -21,16 +21,6 @@
 
 package nl.biopet.tools.mergesv
 
-import java.io.File
-
-import htsjdk.samtools.SAMSequenceDictionary
-import htsjdk.variant.variantcontext.writer.{
-  VariantContextWriter,
-  VariantContextWriterBuilder
-}
-import htsjdk.variant.vcf.{VCFFileReader, VCFHeader, VCFHeaderLine}
-import nl.biopet.utils.ngs.{fasta, vcf}
-import nl.biopet.utils.io
 import nl.biopet.utils.tool.ToolCommand
 
 import scala.collection.JavaConversions._
