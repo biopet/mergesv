@@ -21,12 +21,9 @@
 
 package nl.biopet.tools.mergesv
 
-import com.sun.prism.impl.Disposer.Record
 import nl.biopet.utils.tool.ToolCommand
 
-import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
 
 object MergeSv extends ToolCommand[Args] {
   def emptyArgs = Args()
