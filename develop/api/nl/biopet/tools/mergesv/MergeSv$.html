@@ -88,27 +88,7 @@
         <div id="allMembers">
         
 
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="nl.biopet.tools.mergesv.MergeSv.Init" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="InitextendsProductwithSerializable"></a>
-      <a id="Init:Init"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="MergeSv$$Init.html"><span class="name">Init</span></a><span class="params">(<span name="dict">dict: <span class="extype" name="htsjdk.samtools.SAMSequenceDictionary">SAMSequenceDictionary</span></span>, <span name="readers">readers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="htsjdk.variant.vcf.VCFFileReader">VCFFileReader</span>]]</span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="htsjdk.variant.vcf.VCFHeader">VCFHeader</span>]]</span>, <span name="samples">samples: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="writer">writer: <span class="extype" name="htsjdk.variant.variantcontext.writer.VariantContextWriter">VariantContextWriter</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#nl.biopet.tools.mergesv.MergeSv$@InitextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
-    </li></ol>
-            </div>
+        
 
         
 
@@ -290,23 +270,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ToolCommand</dd></dl></div>
-    </li><li name="nl.biopet.tools.mergesv.MergeSv#createInit" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="createInit(cmdArgs:nl.biopet.tools.mergesv.Args):nl.biopet.tools.mergesv.MergeSv.Init"></a>
-      <a id="createInit(Args):Init"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">createInit</span><span class="params">(<span name="cmdArgs">cmdArgs: <a href="Args.html" class="extype" name="nl.biopet.tools.mergesv.Args">Args</a></span>)</span><span class="result">: <a href="MergeSv$$Init.html" class="extype" name="nl.biopet.tools.mergesv.MergeSv.Init">Init</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#nl.biopet.tools.mergesv.MergeSv$@createInit(cmdArgs:nl.biopet.tools.mergesv.Args):nl.biopet.tools.mergesv.MergeSv.Init" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="nl.biopet.tools.mergesv.MergeSv#descriptionText" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="descriptionText:String"></a>
       <a id="descriptionText:String"></a>
@@ -687,6 +650,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ToolCommand</dd></dl></div>
+    </li><li name="nl.biopet.tools.mergesv.MergeSv#slidingWindow" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="slidingWindow(init:nl.biopet.tools.mergesv.Init,windowSize:Int,defaultCi:Int,keepNonVariants:Boolean):Unit"></a>
+      <a id="slidingWindow(Init,Int,Int,Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slidingWindow</span><span class="params">(<span name="init">init: <a href="Init.html" class="extype" name="nl.biopet.tools.mergesv.Init">Init</a></span>, <span name="windowSize">windowSize: <span class="extype" name="scala.Int">Int</span></span>, <span name="defaultCi">defaultCi: <span class="extype" name="scala.Int">Int</span></span>, <span name="keepNonVariants">keepNonVariants: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.MergeSv$@slidingWindow(init:nl.biopet.tools.mergesv.Init,windowSize:Int,defaultCi:Int,keepNonVariants:Boolean):Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="nl.biopet.utils.tool.ToolCommand#sparkExample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sparkExample(args:&lt;?&gt;):String"></a>
       <a id="sparkExample(String*):String"></a>

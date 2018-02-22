@@ -75,7 +75,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Args.html"><span class="name">Args</span></a><span class="params">(<span name="inputFiles">inputFiles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="java.io.File">File</span>]] = <span class="symbol">Map()</span></span>, <span name="outputFile">outputFile: <span class="extype" name="java.io.File">File</span> = <span class="symbol">null</span></span>, <span name="referenceFasta">referenceFasta: <span class="extype" name="java.io.File">File</span> = <span class="symbol">null</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Args.html"><span class="name">Args</span></a><span class="params">(<span name="inputFiles">inputFiles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="java.io.File">File</span>]] = <span class="symbol">Map()</span></span>, <span name="outputFile">outputFile: <span class="extype" name="java.io.File">File</span> = <span class="symbol">null</span></span>, <span name="referenceFasta">referenceFasta: <span class="extype" name="java.io.File">File</span> = <span class="symbol">null</span></span>, <span name="windowsSize">windowsSize: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">1000</span></span>, <span name="defaultCi">defaultCi: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">75</span></span>, <span name="keepNonVariant">keepNonVariant: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#nl.biopet.tools.mergesv.package@ArgsextendsProductwithSerializable" title="Permalink" target="_top">
@@ -100,6 +100,74 @@
       </a>
     </span>
       
+    </li><li name="nl.biopet.tools.mergesv.Init" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InitextendsProductwithSerializable"></a>
+      <a id="Init:Init"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Init.html"><span class="name">Init</span></a><span class="params">(<span name="dict">dict: <span class="extype" name="htsjdk.samtools.SAMSequenceDictionary">SAMSequenceDictionary</span></span>, <span name="readers">readers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="htsjdk.variant.vcf.VCFFileReader">VCFFileReader</span>]]</span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="htsjdk.variant.vcf.VCFHeader">VCFHeader</span>]]</span>, <span name="samples">samples: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="writer">writer: <span class="extype" name="htsjdk.variant.variantcontext.writer.VariantContextWriter">VariantContextWriter</span></span>, <span name="referenceReader">referenceReader: <span class="extype" name="htsjdk.samtools.reference.IndexedFastaSequenceFile">IndexedFastaSequenceFile</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@InitextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="nl.biopet.tools.mergesv.Interval" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IntervalextendsProductwithSerializable"></a>
+      <a id="Interval:Interval"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Interval.html"><span class="name">Interval</span></a><span class="params">(<span name="start">start: <span class="extype" name="scala.Int">Int</span></span>, <span name="end">end: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@IntervalextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="nl.biopet.tools.mergesv.MultiReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultiReaderextendsIterator[nl.biopet.tools.mergesv.SvCall]withAutoCloseable"></a>
+      <a id="MultiReader:MultiReader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="MultiReader.html"><span class="name">MultiReader</span></a><span class="result"> extends <span class="extype" name="scala.Iterator">Iterator</span>[<a href="SvCall.html" class="extype" name="nl.biopet.tools.mergesv.SvCall">SvCall</a>] with <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@MultiReaderextendsIterator[nl.biopet.tools.mergesv.SvCall]withAutoCloseable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="nl.biopet.tools.mergesv.SvCall" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SvCallextendsLoggingwithProductwithSerializable"></a>
+      <a id="SvCall:SvCall"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SvCall.html"><span class="name">SvCall</span></a><span class="params">(<span name="contig1">contig1: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pos1">pos1: <span class="extype" name="scala.Int">Int</span></span>, <span name="contig2">contig2: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pos2">pos2: <span class="extype" name="scala.Int">Int</span></span>, <span name="svType">svType: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="posCi">posCi: <a href="Interval.html" class="extype" name="nl.biopet.tools.mergesv.Interval">Interval</a></span>, <span name="endCi">endCi: <a href="Interval.html" class="extype" name="nl.biopet.tools.mergesv.Interval">Interval</a></span>, <span name="callers">callers: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="orientation1">orientation1: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="orientation2">orientation2: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="existsInSamples">existsInSamples: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="nl.biopet.utils.Logging">Logging</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@SvCallextendsLoggingwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li></ol>
             </div>
 
@@ -107,7 +175,41 @@
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="nl.biopet.tools.mergesv.MergeSv" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="nl.biopet.tools.mergesv.Init" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Init"></a>
+      <a id="Init:Init"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Init$.html"><span class="name">Init</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@Init" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="nl.biopet.tools.mergesv.MergeMethod" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MergeMethod"></a>
+      <a id="MergeMethod:MergeMethod"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="MergeMethod$.html"><span class="name">MergeMethod</span></a><span class="result"> extends <span class="extype" name="scala.Enumeration">Enumeration</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@MergeMethod" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="nl.biopet.tools.mergesv.MergeSv" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="MergeSv"></a>
       <a id="MergeSv:MergeSv"></a>
       <h4 class="signature">
@@ -120,6 +222,40 @@
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#nl.biopet.tools.mergesv.package@MergeSv" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="nl.biopet.tools.mergesv.SvCall" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SvCall"></a>
+      <a id="SvCall:SvCall"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SvCall$.html"><span class="name">SvCall</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@SvCall" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="nl.biopet.tools.mergesv.SvHeader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SvHeader"></a>
+      <a id="SvHeader:SvHeader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SvHeader$.html"><span class="name">SvHeader</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#nl.biopet.tools.mergesv.package@SvHeader" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

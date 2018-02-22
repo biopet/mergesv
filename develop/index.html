@@ -1,3 +1,24 @@
+<!--
+   Copyright (c) 2014 Biopet
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy of
+   this software and associated documentation files (the "Software"), to deal in
+   the Software without restriction, including without limitation the rights to
+   use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+   the Software, and to permit persons to whom the Software is furnished to do so,
+   subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+   FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -153,6 +174,24 @@
               <td>yes</td>
               <td>no</td>
               <td>Reference fasta file</td>
+            </tr>
+            <tr>
+              <td>--windowsSize</td>
+              <td>no</td>
+              <td>no</td>
+              <td>Size of sliding window, default is 1000 basepair</td>
+            </tr>
+            <tr>
+              <td>--defaultCi</td>
+              <td>no</td>
+              <td>no</td>
+              <td>Interval when caller does not give one, default is 75 basepair</td>
+            </tr>
+            <tr>
+              <td>--keepNonVariant</td>
+              <td>no</td>
+              <td>no</td>
+              <td>By default calls without a genotype with a alternative allele will be filtered. This option keeps them in the merging.</td>
             </tr>
           </tbody>
         </table>
