@@ -21,8 +21,10 @@
 
 package nl.biopet.tools.mergesv
 
+import com.sun.prism.impl.Disposer.Record
 import nl.biopet.utils.tool.ToolCommand
 
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
@@ -77,30 +79,27 @@ object MergeSv extends ToolCommand[Args] {
 
   private def readWrite(multiReader: MultiReader,
                         windowSize: Int,
-                        init: Init,
-                        buf: List[SvCall] = Nil): Long = {
+                        init: Init): Long = {
     var writeCount = 0L
+
     if (multiReader.hasNext) {
-      val split = buf.groupBy(
-        _.pos1 >= (multiReader.headOption
-          .map(_.pos1)
-          .getOrElse(0) - windowSize))
-      writeCount += writeToFile(split.getOrElse(false, Nil), init)
-      val keep = split.getOrElse(true, Nil)
-      val end =
-        if (keep.isEmpty)
-          multiReader.headOption.map(_.pos1).getOrElse(0) + windowSize
-        else keep.map(_.pos1).min + windowSize
-      val newCalls = {
-        val b = new ListBuffer[SvCall]
-        while (multiReader.headOption.exists(_.pos1 <= end)) b.append(
-          multiReader.next())
-        b.toList
+      val (_, remain) = multiReader.foldLeft((multiReader.next(), List[SvCall]())) { case ((first: SvCall, buf), record) =>
+        if (record.pos1 <= (first.pos1 + windowSize)) (first, record :: buf)
+        else {
+          val newBuf =
+            MergeMethod.mergeExtendCalls(buf)
+          val split = newBuf.groupBy(
+            _.pos1 >= (multiReader.headOption
+              .map(_.pos1)
+              .getOrElse(0) - windowSize))
+          writeCount += writeToFile(split.getOrElse(false, Nil), init)
+          val keep = split.getOrElse(true, Nil)
+
+          (keep.sortBy(_.pos1).headOption.getOrElse(record), record :: keep)
+        }
       }
-      val newBuf =
-        MergeMethod.mergeExtendCalls(newCalls ::: split.getOrElse(true, Nil))
-      readWrite(multiReader, windowSize, init, newBuf)
-    } else writeCount += writeToFile(buf, init)
+      writeCount += writeToFile( MergeMethod.mergeExtendCalls(remain), init)
+    }
     writeCount
   }
 
