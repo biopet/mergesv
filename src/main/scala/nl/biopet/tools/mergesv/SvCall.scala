@@ -49,9 +49,10 @@ case class SvCall(contig1: String,
     extends Logging {
 
   def overlapWith(other: SvCall): Boolean = {
+    this.svType == other.svType &&
     this.contig1 == other.contig1 && this.contig2 == other.contig2 &&
     this.orientation1 == other.orientation1 && this.orientation2 == other.orientation2 &&
-    this.posCi.overlapWith(other.posCi) && this.endCi.overlapWith(other.endCi)
+    this.posCi.overlapWith(other.posCi) && (this.endCi.overlapWith(other.endCi) || svType == "INS")
   }
 
   private def alternativeAllele(referenceAllele: Allele) = svType match {
@@ -99,19 +100,21 @@ case class SvCall(contig1: String,
         .attribute("CALLERS", callers.sorted.mkString(","))
         .genotypes(genotypes)
 
-    svType match {
+    (svType match {
       case "BND" =>
         commonBuilder
           .alleles(refAllele :: altAllele :: Nil)
-          .make()
+      case "INS" =>
+        commonBuilder
+          .attribute("SVLEN", pos2 - pos1)
+          .alleles(refAllele :: altAllele :: Nil)
       case _ =>
         commonBuilder
           .attribute("SVLEN", pos2 - pos1)
           .alleles(refAllele :: altAllele :: Nil)
           .stop(pos2)
           .attribute("END", pos2)
-          .make()
-    }
+    }).make()
   }
 }
 
