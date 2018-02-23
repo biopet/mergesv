@@ -32,7 +32,8 @@ import scala.collection.JavaConversions._
 class MultiReader(init: Init,
                   contig: SAMSequenceRecord,
                   defaultCi: Int,
-                  keepNonVariants: Boolean)
+                  keepNonVariants: Boolean,
+                  callerFields: Map[String, Set[String]])
     extends Iterator[SvCall]
     with AutoCloseable {
 
@@ -72,7 +73,10 @@ class MultiReader(init: Init,
         .headOption
         .map {
           case (caller, idx, _) =>
-            SvCall.from(buffers(caller)(idx).head, caller, defaultCi)
+            SvCall.from(buffers(caller)(idx).head,
+                        caller,
+                        defaultCi,
+                        callerFields)
         }
     } else None
   }
@@ -97,7 +101,10 @@ class MultiReader(init: Init,
       .headOption
       .map {
         case (caller, idx, _) =>
-          SvCall.from(buffers(caller)(idx).next(), caller, defaultCi)
+          SvCall.from(buffers(caller)(idx).next(),
+                      caller,
+                      defaultCi,
+                      callerFields)
       }
       .getOrElse(throw new IllegalStateException(
         "No records, please check .hasNext first"))
