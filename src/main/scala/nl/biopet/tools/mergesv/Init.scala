@@ -82,10 +82,17 @@ object Init {
             require(
               oldLines.map(_.getDescription).distinct.lengthCompare(1) == 0,
               s"for caller '$caller' field '$field' has different description")
-            val newHeaderLine = new VCFFormatHeaderLine(s"$caller-$field",
-                                                        line.getCountType,
-                                                        line.getType,
-                                                        line.getDescription)
+            val newHeaderLine =
+              if (line.isFixedCount)
+                new VCFFormatHeaderLine(s"$caller-$field",
+                                        line.getCount,
+                                        line.getType,
+                                        line.getDescription)
+              else
+                new VCFFormatHeaderLine(s"$caller-$field",
+                                        line.getCountType,
+                                        line.getType,
+                                        line.getDescription)
             header.addMetaDataLine(newHeaderLine)
           case _ =>
             throw new IllegalArgumentException(
