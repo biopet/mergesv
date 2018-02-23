@@ -64,6 +64,7 @@ class ArgsParser(toolCommand: ToolCommand[Args])
         val newMap = c.callerFields + (k -> newValue)
         c.copy(callerFields = newMap)
     }
+    .unbounded()
     .valueName("<caller>=<key>")
     .text("Format fields to copy to new vcf file.")
 }
