@@ -21,6 +21,8 @@
 
 package nl.biopet.tools.mergesv
 
+import nl.biopet.utils.conversions
+
 object MergeMethod extends Enumeration {
   val Extend, Shrink = Value
 
@@ -37,6 +39,11 @@ object MergeMethod extends Enumeration {
                 .foldLeft(call.posCi)((a, b) => a.extend(b.posCi).getOrElse(a))
               val endCi = overlapping
                 .foldLeft(call.endCi)((a, b) => a.extend(b.endCi).getOrElse(a))
+              val callerFields = overlapping
+                .map(_.callerFields)
+                .foldLeft(call.callerFields.asInstanceOf[Map[String, Any]])(
+                  (a: Map[String, Any], b: Map[String, Any]) =>
+                    conversions.mergeMaps(a, b))
               val newCall = SvCall(
                 call.contig1,
                 posCi.getMiddle,
@@ -49,7 +56,8 @@ object MergeMethod extends Enumeration {
                 call.orientation1,
                 call.orientation2,
                 (call.existsInSamples ::: overlapping.flatMap(
-                  _.existsInSamples)).distinct
+                  _.existsInSamples)).distinct,
+                callerFields.asInstanceOf[Map[String, Map[String, AnyRef]]]
               )
               newCall :: overlap.getOrElse(false, Nil)
             } else call :: l

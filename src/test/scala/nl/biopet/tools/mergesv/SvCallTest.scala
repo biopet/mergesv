@@ -32,7 +32,7 @@ class SvCallTest extends BiopetTest {
   def testBnd(): Unit = {
     val reader = new VCFFileReader(resourceFile("/bnd.vcf"), false)
     val it = reader.iterator()
-    SvCall.from(it.next(), "caller", 0) shouldBe SvCall(
+    SvCall.from(it.next(), "caller", 0, Map()) shouldBe SvCall(
       "chr2",
       321681,
       "17",
@@ -43,7 +43,7 @@ class SvCallTest extends BiopetTest {
       "caller" :: Nil,
       true,
       false)
-    SvCall.from(it.next(), "caller", 0) shouldBe SvCall(
+    SvCall.from(it.next(), "caller", 0, Map()) shouldBe SvCall(
       "chr2",
       321681,
       "17",
@@ -54,7 +54,7 @@ class SvCallTest extends BiopetTest {
       "caller" :: Nil,
       true,
       true)
-    SvCall.from(it.next(), "caller", 0) shouldBe SvCall(
+    SvCall.from(it.next(), "caller", 0, Map()) shouldBe SvCall(
       "chr2",
       321681,
       "17",
@@ -65,7 +65,7 @@ class SvCallTest extends BiopetTest {
       "caller" :: Nil,
       false,
       false)
-    SvCall.from(it.next(), "caller", 0) shouldBe SvCall(
+    SvCall.from(it.next(), "caller", 0, Map()) shouldBe SvCall(
       "chr2",
       321681,
       "17",

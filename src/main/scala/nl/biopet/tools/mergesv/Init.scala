@@ -27,12 +27,7 @@ import htsjdk.variant.variantcontext.writer.{
   VariantContextWriter,
   VariantContextWriterBuilder
 }
-import htsjdk.variant.vcf.{
-  VCFCompoundHeaderLine,
-  VCFFileReader,
-  VCFHeader,
-  VCFHeaderLine
-}
+import htsjdk.variant.vcf._
 import nl.biopet.utils.ngs.fasta
 
 import scala.collection.JavaConversions._
@@ -70,7 +65,42 @@ object Init {
 
     val header = SvHeader.createSvHeader(samples)
     header.setSequenceDictionary(dict)
-    //header.addMetaDataLine(VCFHeaderLine)
+
+    for ((caller, fields) <- cmdArgs.callerFields) {
+      require(headers.contains(caller), s"Caller '$caller' not found")
+      for (field <- fields) {
+        val oldLines =
+          headers(caller).flatMap(x => Option(x.getFormatHeaderLine(field)))
+
+        oldLines.headOption match {
+          case Some(line) =>
+            require(
+              oldLines.map(_.getCountType).distinct.lengthCompare(1) == 0,
+              s"for caller '$caller' field '$field' has different countTypes")
+            require(oldLines.map(_.getType).distinct.lengthCompare(1) == 0,
+                    s"for caller '$caller' field '$field' has different types")
+            require(
+              oldLines.map(_.getDescription).distinct.lengthCompare(1) == 0,
+              s"for caller '$caller' field '$field' has different description")
+            val newHeaderLine =
+              if (line.isFixedCount)
+                new VCFFormatHeaderLine(s"$caller-$field",
+                                        line.getCount,
+                                        line.getType,
+                                        line.getDescription)
+              else
+                new VCFFormatHeaderLine(s"$caller-$field",
+                                        line.getCountType,
+                                        line.getType,
+                                        line.getDescription)
+            header.addMetaDataLine(newHeaderLine)
+          case _ =>
+            throw new IllegalArgumentException(
+              s"For caller '$caller', field '$field' is not found")
+        }
+      }
+
+    }
     writer.writeHeader(header)
 
     Init(dict, readers, headers, samples, writer, referenceReader)

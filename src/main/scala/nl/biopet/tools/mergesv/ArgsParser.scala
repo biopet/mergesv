@@ -57,4 +57,14 @@ class ArgsParser(toolCommand: ToolCommand[Args])
     .text(
       s"By default calls without a genotype with a alternative allele will be filtered. " +
         s"This option keeps them in the merging.")
+  opt[(String, String)]("callerField")
+    .action {
+      case ((k, v), c) =>
+        val newValue = c.callerFields.getOrElse(k, Set()) + v
+        val newMap = c.callerFields + (k -> newValue)
+        c.copy(callerFields = newMap)
+    }
+    .unbounded()
+    .valueName("<caller>=<key>")
+    .text("Format fields to copy to new vcf file.")
 }

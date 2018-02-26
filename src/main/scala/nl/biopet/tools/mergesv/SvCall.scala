@@ -45,13 +45,16 @@ case class SvCall(contig1: String,
                   callers: List[String],
                   orientation1: Boolean = true,
                   orientation2: Boolean = true,
-                  existsInSamples: List[String] = Nil)
+                  existsInSamples: List[String] = Nil,
+                  callerFields: Map[String, Map[String, AnyRef]] = Map())
     extends Logging {
 
   def overlapWith(other: SvCall): Boolean = {
+    this.svType == other.svType &&
     this.contig1 == other.contig1 && this.contig2 == other.contig2 &&
     this.orientation1 == other.orientation1 && this.orientation2 == other.orientation2 &&
-    this.posCi.overlapWith(other.posCi) && this.endCi.overlapWith(other.endCi)
+    this.posCi.overlapWith(other.posCi) && (this.endCi
+      .overlapWith(other.endCi) || svType == "INS")
   }
 
   private def alternativeAllele(referenceAllele: Allele) = svType match {
@@ -84,8 +87,14 @@ case class SvCall(contig1: String,
     val refAllele = referenceAllele(referenceReader)
     val altAllele = alternativeAllele(refAllele)
 
-    val genotypes = existsInSamples.map(sample =>
-      new GenotypeBuilder().name(sample).alleles(altAllele :: Nil).make())
+    val genotypes = existsInSamples.map { sample =>
+      val at = this.callerFields.getOrElse(sample, Map[String, AnyRef]())
+      new GenotypeBuilder()
+        .name(sample)
+        .attributes(at)
+        .alleles(altAllele :: Nil)
+        .make()
+    }
 
     def commonBuilder =
       new VariantContextBuilder()
@@ -99,19 +108,21 @@ case class SvCall(contig1: String,
         .attribute("CALLERS", callers.sorted.mkString(","))
         .genotypes(genotypes)
 
-    svType match {
+    (svType match {
       case "BND" =>
         commonBuilder
           .alleles(refAllele :: altAllele :: Nil)
-          .make()
+      case "INS" =>
+        commonBuilder
+          .attribute("SVLEN", pos2 - pos1)
+          .alleles(refAllele :: altAllele :: Nil)
       case _ =>
         commonBuilder
           .attribute("SVLEN", pos2 - pos1)
           .alleles(refAllele :: altAllele :: Nil)
           .stop(pos2)
           .attribute("END", pos2)
-          .make()
-    }
+    }).make()
   }
 }
 
@@ -205,7 +216,10 @@ object SvCall {
 
   }
 
-  def from(variant: VariantContext, caller: String, defaultCi: Int): SvCall = {
+  def from(variant: VariantContext,
+           caller: String,
+           defaultCi: Int,
+           callerFields: Map[String, Set[String]]): SvCall = {
     val contig1 = variant.getContig
     val pos1 = variant.getStart
     val svType: String = variant.getAttribute("SVTYPE") match {
@@ -214,18 +228,27 @@ object SvCall {
         throw new IllegalStateException("Variant does not have tag 'SVTYPE'")
     }
 
+    val allSamples = variant.getGenotypes.map(_.getSampleName).toList
     val samples = variant.getGenotypes
       .filter(v => v.isCalled && !v.isHomRef)
       .map(_.getSampleName)
       .toList
 
-    svType match {
+    val fields = callerFields.getOrElse(caller, Set())
+
+    (svType match {
       case "BND" =>
         createBnd(variant, contig1, pos1, caller, samples, defaultCi)
       case "DEL" | "INS" | "INV" | "DUP" | "CNV" =>
         create(variant, contig1, pos1, svType, caller, samples, defaultCi)
       case _ =>
         throw new IllegalStateException(s"Svtype '$svType' does not exist")
-    }
+    }).copy(callerFields = allSamples
+      .map(s =>
+        s -> fields
+          .flatMap(f =>
+            Option(s"$caller-$f" -> variant.getGenotype(s).getAnyAttribute(f)))
+          .toMap)
+      .toMap)
   }
 }

@@ -24,7 +24,6 @@ package nl.biopet.tools.mergesv
 import nl.biopet.utils.tool.ToolCommand
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
 
 object MergeSv extends ToolCommand[Args] {
   def emptyArgs = Args()
@@ -40,7 +39,8 @@ object MergeSv extends ToolCommand[Args] {
     slidingWindow(init,
                   cmdArgs.windowsSize,
                   cmdArgs.defaultCi,
-                  cmdArgs.keepNonVariant)
+                  cmdArgs.keepNonVariant,
+                  cmdArgs.callerFields)
 
     init.readers.foreach { case (key, list) => key -> list.foreach(_.close) }
     init.writer.close()
@@ -51,11 +51,12 @@ object MergeSv extends ToolCommand[Args] {
   def slidingWindow(init: Init,
                     windowSize: Int,
                     defaultCi: Int,
-                    keepNonVariants: Boolean): Unit = {
+                    keepNonVariants: Boolean,
+                    callerFields: Map[String, Set[String]]): Unit = {
     for (contig <- init.dict.getSequences) {
       logger.info(s"Starting on ${contig.getSequenceName}")
       val multiReader =
-        new MultiReader(init, contig, defaultCi, keepNonVariants)
+        new MultiReader(init, contig, defaultCi, keepNonVariants, callerFields)
 
       val writeCount = readWrite(multiReader, windowSize, init)
 
@@ -77,30 +78,29 @@ object MergeSv extends ToolCommand[Args] {
 
   private def readWrite(multiReader: MultiReader,
                         windowSize: Int,
-                        init: Init,
-                        buf: List[SvCall] = Nil): Long = {
+                        init: Init): Long = {
     var writeCount = 0L
+
     if (multiReader.hasNext) {
-      val split = buf.groupBy(
-        _.pos1 >= (multiReader.headOption
-          .map(_.pos1)
-          .getOrElse(0) - windowSize))
-      writeCount += writeToFile(split.getOrElse(false, Nil), init)
-      val keep = split.getOrElse(true, Nil)
-      val end =
-        if (keep.isEmpty)
-          multiReader.headOption.map(_.pos1).getOrElse(0) + windowSize
-        else keep.map(_.pos1).min + windowSize
-      val newCalls = {
-        val b = new ListBuffer[SvCall]
-        while (multiReader.headOption.exists(_.pos1 <= end)) b.append(
-          multiReader.next())
-        b.toList
-      }
-      val newBuf =
-        MergeMethod.mergeExtendCalls(newCalls ::: split.getOrElse(true, Nil))
-      readWrite(multiReader, windowSize, init, newBuf)
-    } else writeCount += writeToFile(buf, init)
+      val (_, remain) =
+        multiReader.foldLeft((multiReader.next(), List[SvCall]())) {
+          case ((first: SvCall, buf), record) =>
+            if (record.pos1 <= (first.pos1 + windowSize)) (first, record :: buf)
+            else {
+              val newBuf =
+                MergeMethod.mergeExtendCalls(buf)
+              val split = newBuf.groupBy(
+                _.pos1 >= (multiReader.headOption
+                  .map(_.pos1)
+                  .getOrElse(0) - windowSize))
+              writeCount += writeToFile(split.getOrElse(false, Nil), init)
+              val keep = split.getOrElse(true, Nil)
+
+              (keep.sortBy(_.pos1).headOption.getOrElse(record), record :: keep)
+            }
+        }
+      writeCount += writeToFile(MergeMethod.mergeExtendCalls(remain), init)
+    }
     writeCount
   }
 
