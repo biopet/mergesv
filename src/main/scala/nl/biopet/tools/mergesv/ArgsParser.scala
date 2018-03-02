@@ -24,19 +24,30 @@ package nl.biopet.tools.mergesv
 import java.io.File
 
 import nl.biopet.utils.tool.{AbstractOptParser, ToolCommand}
+import nl.biopet.utils.io
 
 class ArgsParser(toolCommand: ToolCommand[Args])
     extends AbstractOptParser[Args](toolCommand) {
   opt[(String, File)]('i', "inputFile")
-    .required()
     .unbounded()
     .action {
-      case ((key, file), c) =>
-        c.copy(inputFiles = c.inputFiles ++ Map(
-          key -> (file :: c.inputFiles.getOrElse(key, Nil))))
+      case ((key, file), c) => c.addFile(key, file)
     }
     .valueName("<caller>=<file>")
     .text("Input vcf files to merge into a single file")
+  opt[File]("inputFileList")
+    .unbounded()
+    .action {
+      case (x, c) =>
+        io.getLinesFromFile(x).foldLeft(c) {
+          case (a, line) =>
+            val values = line.split("\t")
+            require(values.size == 2)
+            a.addFile(values(0), new File(values(1)))
+        }
+    }
+    .valueName("<tsv file>")
+    .text("file with input files, first column is the caller, second column is the path to the file, separated by a tab")
   opt[File]('o', "outputFile")
     .required()
     .action((x, c) => c.copy(outputFile = x))

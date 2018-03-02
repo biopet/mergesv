@@ -29,4 +29,11 @@ case class Args(inputFiles: Map[String, List[File]] = Map(),
                 referenceFasta: File = null,
                 windowsSize: Int = 1000,
                 defaultCi: Int = 75,
-                keepNonVariant: Boolean = false)
+                keepNonVariant: Boolean = false) {
+
+  def addFile(key: String, file: File): Args = {
+    this.copy(
+      inputFiles = this.inputFiles ++ Map(
+        key -> (file :: this.inputFiles.getOrElse(key, Nil))))
+  }
+}

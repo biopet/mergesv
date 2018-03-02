@@ -31,10 +31,15 @@ object MergeSv extends ToolCommand[Args] {
 
   def main(args: Array[String]): Unit = {
     val cmdArgs = cmdArrayToArgs(args)
+    val numberInputs = cmdArgs.inputFiles.map { case (_, x) => x.size }.sum
+    require(numberInputs > 1, "At least 2 input files required")
 
     logger.info("Start")
 
     val init = Init.createInit(cmdArgs)
+    logger.info(s"Detected $numberInputs files")
+    logger.info(s"Detected ${init.samples.size} samples")
+    logger.info(s"Detected ${init.readers.keys.size} callers")
 
     slidingWindow(init,
                   cmdArgs.windowsSize,
