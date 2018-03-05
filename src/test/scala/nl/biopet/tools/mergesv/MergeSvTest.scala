@@ -26,6 +26,7 @@ import java.io.File
 import nl.biopet.utils.ngs.intervals.BedRecord
 import nl.biopet.utils.test.tools.ToolTest
 import nl.biopet.utils.ngs.vcf
+import nl.biopet.utils.io
 import org.testng.annotations.Test
 
 class MergeSvTest extends ToolTest[Args] {
@@ -84,5 +85,24 @@ class MergeSvTest extends ToolTest[Args] {
     vcf.getSampleIds(outputFile) shouldBe List("s1")
     val records = vcf.loadRegion(outputFile, BedRecord("chrQ", 1, 10000))
     records.size shouldBe 4
+  }
+
+  @Test
+  def testList(): Unit = {
+    val outputFile = File.createTempFile("test.", ".vcf")
+    outputFile.deleteOnExit()
+    val tsvFile = File.createTempFile("test.", ".tsv")
+    tsvFile.deleteOnExit()
+    io.writeLinesToFile(tsvFile,
+                        List(s"caller\t${resourcePath("/s1.vcf")}",
+                             s"caller\t${resourcePath("/s2.vcf")}"))
+    MergeSv.main(
+      Array("-R",
+            resourcePath("/fake_chrQ.fa"),
+            "--inputFileList",
+            tsvFile.getAbsolutePath,
+            "-o",
+            outputFile.getAbsolutePath))
+    vcf.getSampleIds(outputFile) shouldBe List("s1", "s2")
   }
 }
