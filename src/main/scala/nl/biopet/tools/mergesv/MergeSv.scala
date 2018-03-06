@@ -87,8 +87,9 @@ object MergeSv extends ToolCommand[Args] {
     var writeCount = 0L
 
     if (multiReader.hasNext) {
+      val f = multiReader.next()
       val (_, remain) =
-        multiReader.foldLeft((multiReader.next(), List[SvCall]())) {
+        multiReader.foldLeft((f, List(f))) {
           case ((first: SvCall, buf), record) =>
             if (record.pos1 <= (first.pos1 + windowSize)) (first, record :: buf)
             else {

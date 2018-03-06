@@ -105,4 +105,50 @@ class MergeSvTest extends ToolTest[Args] {
             outputFile.getAbsolutePath))
     vcf.getSampleIds(outputFile) shouldBe List("s1", "s2")
   }
+
+  @Test
+  def testCallerFields(): Unit = {
+    val outputFile = File.createTempFile("test.", ".vcf")
+    outputFile.deleteOnExit()
+    MergeSv.main(
+      Array(
+        "-R",
+        resourcePath("/fake_chrQ.fa"),
+        "-o",
+        outputFile.getAbsolutePath,
+        "-i",
+        "caller=" + resourcePath("/s1.bnd.vcf"),
+        "-i",
+        "caller2=" + resourcePath("/s1.bnd.vcf"),
+        "--callerField",
+        "caller=DP"
+      ))
+    vcf.getSampleIds(outputFile) shouldBe List("s1")
+    val records = vcf.loadRegion(outputFile, BedRecord("chrQ", 1, 10000))
+    records.size shouldBe 2
+    records.foreach { r =>
+      r.getGenotype("s1").getAnyAttribute("caller-DP").toString.toInt shouldBe 5
+    }
+  }
+
+  @Test
+  def testCallerFieldsWrongField(): Unit = {
+    val outputFile = File.createTempFile("test.", ".vcf")
+    outputFile.deleteOnExit()
+    intercept[IllegalArgumentException] {
+      MergeSv.main(
+        Array(
+          "-R",
+          resourcePath("/fake_chrQ.fa"),
+          "-o",
+          outputFile.getAbsolutePath,
+          "-i",
+          "caller=" + resourcePath("/s1.bnd.vcf"),
+          "-i",
+          "caller2=" + resourcePath("/s1.bnd.vcf"),
+          "--callerField",
+          "caller=not_exist"
+        ))
+    }.getMessage shouldBe "For caller 'caller', field 'not_exist' is not found"
+  }
 }

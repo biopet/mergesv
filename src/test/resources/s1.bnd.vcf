@@ -1,7 +1,8 @@
 ##fileformat=VCFv4.2
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Sample depth">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	s1
-chrQ	1000	bnd_W	G	G]chrQ:2000]	6	PASS	SVTYPE=BND;CIPOS=-5,5;CIEND=-6,6	GT	1
-chrQ	2000	bnd_W	G	G[chrQ:3000[	6	PASS	SVTYPE=BND;CILEN=-5,5	GT	0
-chrQ	3000	bnd_W	G	]chrQ:4000]G	6	PASS	SVTYPE=BND;CILEN=-5,5	GT	1
-chrQ	4000	bnd_W	G	[chrQ:5000[G	6	PASS	SVTYPE=BND;CILEN=-5,5	GT	0
+chrQ	1000	bnd_W	G	G]chrQ:2000]	6	PASS	SVTYPE=BND;CIPOS=-5,5;CIEND=-6,6	GT:DP	1:5
+chrQ	2000	bnd_W	G	G[chrQ:3000[	6	PASS	SVTYPE=BND;CILEN=-5,5	GT:DP	0:5
+chrQ	3000	bnd_W	G	]chrQ:4000]G	6	PASS	SVTYPE=BND;CILEN=-5,5	GT:DP	1:5
+chrQ	4000	bnd_W	G	[chrQ:5000[G	6	PASS	SVTYPE=BND;CILEN=-5,5	GT:DP	0:5
