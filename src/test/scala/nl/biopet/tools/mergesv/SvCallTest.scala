@@ -29,6 +29,47 @@ import org.testng.annotations.Test
 
 class SvCallTest extends BiopetTest {
   @Test
+  def testDel(): Unit = {
+    val reader = new VCFFileReader(resourceFile("/del.vcf"), false)
+    val it = reader.iterator()
+    val v1 = it.next()
+    val v2 = it.next()
+    val v3 = it.next()
+    SvCall.from(v1, "caller", 0, Map()) shouldBe SvCall("chr2",
+                                                        1000,
+                                                        "chr2",
+                                                        1500,
+                                                        "DEL",
+                                                        Interval(995, 1005),
+                                                        Interval(1494, 1506),
+                                                        "caller" :: Nil)
+    SvCall.from(v2, "caller", 0, Map()) shouldBe SvCall("chr2",
+                                                        1000,
+                                                        "chr2",
+                                                        1500,
+                                                        "DEL",
+                                                        Interval(995, 1005),
+                                                        Interval(1495, 1505),
+                                                        "caller" :: Nil)
+    SvCall.from(v3, "caller", 0, Map()) shouldBe SvCall("chr2",
+                                                        1000,
+                                                        "chr2",
+                                                        1500,
+                                                        "DEL",
+                                                        Interval(1000, 1000),
+                                                        Interval(1500, 1500),
+                                                        "caller" :: Nil)
+    SvCall.from(v3, "caller", 3, Map()) shouldBe SvCall("chr2",
+                                                        1000,
+                                                        "chr2",
+                                                        1500,
+                                                        "DEL",
+                                                        Interval(997, 1003),
+                                                        Interval(1497, 1503),
+                                                        "caller" :: Nil)
+  }
+
+  @Test
   def testBnd(): Unit = {
     val reader = new VCFFileReader(resourceFile("/bnd.vcf"), false)
     val it = reader.iterator()
