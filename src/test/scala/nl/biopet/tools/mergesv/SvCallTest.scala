@@ -35,6 +35,8 @@ class SvCallTest extends BiopetTest {
     val v1 = it.next()
     val v2 = it.next()
     val v3 = it.next()
+    it.close()
+    reader.close()
     SvCall.from(v1, "caller", 0, Map()) shouldBe SvCall("chr2",
                                                         1000,
                                                         "chr2",
